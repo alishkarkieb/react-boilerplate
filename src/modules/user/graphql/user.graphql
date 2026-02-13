@@ -1,0 +1,55 @@
+query  getUsers($usersInput: ListUser!){
+  users(input: $usersInput) {
+    items {
+      address
+      email
+      id
+      name
+      phoneNumber
+      status
+    }
+    totalCount
+  }
+}
+
+query User($userId: String!) {
+  user(id: $userId) {
+    address
+    email
+    name
+    phoneNumber
+    status
+    id
+  }
+}
+
+
+mutation UpdateUser($updateUserId: String!, $updateUserInput: UpdateUserInput!) {
+  updateUser(id: $updateUserId, updateUserInput: $updateUserInput) {
+    address
+    phoneNumber
+    name
+    email
+    id
+    status
+  }
+}
+
+mutation DeleteUser($deleteUserId: String!) {
+  deleteUser(id: $deleteUserId) {
+    id
+    message
+  }
+}
+
+mutation ForgotPassword($forgotPasswordDto: ForgotPasswordDto!) {
+  forgotPassword(forgotPasswordDto: $forgotPasswordDto) {
+    message
+  }
+}
+
+mutation ResetPassword($resetPasswordDto: ResetPasswordDto!) {
+  resetPassword(resetPasswordDto: $resetPasswordDto) {
+    message
+  }
+}

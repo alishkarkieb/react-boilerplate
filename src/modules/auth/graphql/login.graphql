@@ -1,0 +1,12 @@
+
+mutation Login($login: LoginUserInput!) {
+  login(login: $login) {
+    message
+    payload {
+      accessToken
+      refreshToken
+      
+    }
+    
+  }
+}
