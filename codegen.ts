@@ -62,7 +62,7 @@ const schemaTypesPath = path.resolve(
 
 const config: CodegenConfig = {
   schema: process.env.PUBLIC_API_ENDPOINT,
-  documents: ['src/modules/**/*.graphql'],
+  documents: ['src/modules/**/*.graphql','src/graphql/*.graphql'],
   overwrite: true,
   generates: {
     /**

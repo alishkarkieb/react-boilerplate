@@ -3,15 +3,15 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Layout } from "./components/layout";
 import { Login } from "./components/login";
 import { SignUp } from "./components/signUp";
+import { ForgotPassword } from "./pages/forgotPassword";
 import { HomePage } from "./pages/home";
+import { ResetPassword } from "./pages/resetPassword";
 import { UserDetail } from "./pages/userDetail";
 import { UserEdit } from "./pages/userEdit";
 import UserTable from "./pages/userTable";
 import { AuthProvider } from "./utils/authContext";
 import { ToastProvider } from "./utils/handleToast";
 import { ProtectedRoute } from "./utils/routeProtector";
-import { ForgotPassword } from "./pages/forgotPassword";
-import { ResetPassword } from "./pages/resetPassword";
 
 const router = createBrowserRouter([
   {
@@ -67,6 +67,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  // useFcmSync();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

@@ -36,6 +36,14 @@ export type DeleteUserResponse = {
   message: Scalars['String']['output'];
 };
 
+export type FcmToken = {
+  __typename?: 'FCMToken';
+  _id: Scalars['ID']['output'];
+  deviceType: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+};
+
 export type ForgotPasswordDto = {
   deviceId: Scalars['String']['input'];
   email: Scalars['String']['input'];
@@ -71,6 +79,7 @@ export type Mutation = {
   deleteUser: DeleteUserResponse;
   forgotPassword: ForgotPasswordResponse;
   login: LoginResponse;
+  registerFcmToken: FcmToken;
   resetPassword: ForgotPasswordResponse;
   updateUser: User;
 };
@@ -96,6 +105,11 @@ export type MutationLoginArgs = {
 };
 
 
+export type MutationRegisterFcmTokenArgs = {
+  input: RegisterTokenInput;
+};
+
+
 export type MutationResetPasswordArgs = {
   resetPasswordDto: ResetPasswordDto;
 };
@@ -115,6 +129,7 @@ export type PaginatedUsers = {
 export type Query = {
   __typename?: 'Query';
   books: Array<Book>;
+  getMe: User;
   user: User;
   users: PaginatedUsers;
 };
@@ -127,6 +142,11 @@ export type QueryUserArgs = {
 
 export type QueryUsersArgs = {
   input: ListUser;
+};
+
+export type RegisterTokenInput = {
+  deviceType: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 export type ResetPasswordDto = {

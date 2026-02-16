@@ -6,9 +6,11 @@ import {
   Menu as MenuIcon,
   People as PeopleIcon,
   Person as PersonIcon,
+  Notifications as NotificationsIcon,
 } from "@mui/icons-material";
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   CssBaseline,
@@ -34,6 +36,9 @@ import { styled, useTheme } from "@mui/material/styles";
 import * as React from "react";
 import { Outlet, Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/authContext";
+import { jwtDecode } from "jwt-decode";
+import nodeLogo from "../assets/node.png";
+import { useFcmSync } from "../hooks/fcmSync";
 
 const drawerWidth = 240;
 
@@ -89,6 +94,13 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export function Layout() {
+ useFcmSync(React.useCallback((payload:any) => {
+    console.log("🎯 Layout receiving message via callback:", payload);
+    setNotificationCount((prev) => prev + 1);
+  }, []));
+  const [notificationCount, setNotificationCount] = React.useState(0); // State for badge
+
+  
   const theme = useTheme();
   const navigate = useNavigate();
   const { token, logout } = useAuth();
@@ -96,6 +108,30 @@ export function Layout() {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
+
+  const userId: string = React.useMemo(() => {
+    if (!token) return null;
+    try {
+      const decoded: any = jwtDecode(token);
+      return decoded.userId || decoded.sub || "Unknown ID";
+    } catch (e) {
+      return null;
+    }
+  }, [token]);
+  //  React.useEffect(() => {
+  //   console.log("EventListener attached in Layout");
+  //   const handleNewNotification = (event:any) => {
+  //     console.log("Event received in Layout:", event.detail)
+  //     setNotificationCount((prev) => prev + 1);
+  //   };
+
+  //   window.addEventListener("fcm_message_received", handleNewNotification);
+  //   return () =>
+  //     window.removeEventListener(
+  //       "fcm_message_received",
+  //       handleNewNotification,
+  //     );
+  // }, []);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -107,7 +143,7 @@ export function Layout() {
 
   const handleMeClick = () => {
     handleMenuClose();
-    navigate("/user/id");
+    navigate(`/user/${userId}`);
   };
 
   const handleLogoutClick = () => {
@@ -155,7 +191,7 @@ export function Layout() {
             >
               <Box
                 component="img"
-                src="src/assets/node.png"
+                src={nodeLogo}
                 alt="Logo"
                 sx={{ height: 35 }}
               />
@@ -182,8 +218,19 @@ export function Layout() {
                 </Button>
               </>
             ) : (
-              /* --- Profile Icon and Menu --- */
               <>
+                <Tooltip title="Notifications">
+                  <IconButton
+                    color="inherit"
+                    sx={{ mr: 1 }}
+                    onClick={() => setNotificationCount(0)} // Reset count when clicked
+                  >
+                    <Badge badgeContent={notificationCount} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+                {/* --- Profile Icon and Menu --- */}
                 <Tooltip title="Account settings">
                   <IconButton
                     onClick={handleProfileMenuOpen}

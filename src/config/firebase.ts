@@ -28,6 +28,7 @@ export const requestForToken = async():Promise<string|null> => {
       }
     })
     .catch((err) => {
+      console.log(err)
       alert("An error occurred while retrieving token - " + err);
       return null;
     });
