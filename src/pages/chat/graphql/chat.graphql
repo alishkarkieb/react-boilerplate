@@ -1,0 +1,22 @@
+mutation AddChat($addChatInput: CreateChatInput!) {
+  addChat(input: $addChatInput) {
+    isRead
+    roomId
+    senderId
+    text
+    _id
+    createdAt
+    updatedAt
+  }
+}
+
+query GetChats($roomId: String!) {
+  getChats(roomId: $roomId) {
+    _id
+    createdAt
+    isRead
+    senderId
+    text
+    updatedAt
+  }
+}

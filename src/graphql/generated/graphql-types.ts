@@ -22,6 +22,24 @@ export type Book = {
   title: Scalars['String']['output'];
 };
 
+export type Chat = {
+  __typename?: 'Chat';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  isRead: Scalars['Boolean']['output'];
+  roomId: Scalars['String']['output'];
+  senderId: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CreateChatInput = {
+  isRead: Scalars['Boolean']['input'];
+  roomId: Scalars['String']['input'];
+  senderId: Scalars['String']['input'];
+  text?: Scalars['String']['input'];
+};
+
 export type CreateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   email?: Scalars['String']['input'];
@@ -73,15 +91,27 @@ export type LoginUserInput = {
   password?: Scalars['String']['input'];
 };
 
+export type LoginWithGoogleInput = {
+  token: Scalars['String']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  addChat: Chat;
   createUser: User;
   deleteUser: DeleteUserResponse;
   forgotPassword: ForgotPasswordResponse;
   login: LoginResponse;
+  loginWithGoogle: LoginResponse;
   registerFcmToken: FcmToken;
   resetPassword: ForgotPasswordResponse;
+  updateChat: Chat;
   updateUser: User;
+};
+
+
+export type MutationAddChatArgs = {
+  input: CreateChatInput;
 };
 
 
@@ -105,6 +135,11 @@ export type MutationLoginArgs = {
 };
 
 
+export type MutationLoginWithGoogleArgs = {
+  loginWithGoogle: LoginWithGoogleInput;
+};
+
+
 export type MutationRegisterFcmTokenArgs = {
   input: RegisterTokenInput;
 };
@@ -112,6 +147,12 @@ export type MutationRegisterFcmTokenArgs = {
 
 export type MutationResetPasswordArgs = {
   resetPasswordDto: ResetPasswordDto;
+};
+
+
+export type MutationUpdateChatArgs = {
+  id: Scalars['String']['input'];
+  input: UpdateChat;
 };
 
 
@@ -129,9 +170,15 @@ export type PaginatedUsers = {
 export type Query = {
   __typename?: 'Query';
   books: Array<Book>;
+  getChats: Array<Chat>;
   getMe: User;
   user: User;
   users: PaginatedUsers;
+};
+
+
+export type QueryGetChatsArgs = {
+  roomId: Scalars['String']['input'];
 };
 
 
@@ -163,6 +210,13 @@ export type TokenPayload = {
   refreshTokenExpiresIn: Scalars['DateTime']['output'];
 };
 
+export type UpdateChat = {
+  isRead?: InputMaybe<Scalars['Boolean']['input']>;
+  roomId?: InputMaybe<Scalars['String']['input']>;
+  senderId?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
@@ -173,9 +227,11 @@ export type UpdateUserInput = {
 export type User = {
   __typename?: 'User';
   address: Scalars['String']['output'];
+  authProvider?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   phoneNumber?: Maybe<Scalars['String']['output']>;
+  remoteId?: Maybe<Scalars['String']['output']>;
   status: Scalars['Boolean']['output'];
 };

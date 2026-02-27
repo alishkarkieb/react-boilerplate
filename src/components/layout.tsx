@@ -38,7 +38,7 @@ import { Outlet, Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/authContext";
 import { jwtDecode } from "jwt-decode";
 import nodeLogo from "../assets/node.png";
-import { useFcmSync } from "../hooks/fcmSync";
+
 
 const drawerWidth = 240;
 
@@ -93,14 +93,24 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export function Layout() {
- useFcmSync(React.useCallback((payload:any) => {
-    console.log("🎯 Layout receiving message via callback:", payload);
-    setNotificationCount((prev) => prev + 1);
-  }, []));
-  const [notificationCount, setNotificationCount] = React.useState(0); // State for badge
+import { useNotification } from "../utils/notificationContext";
 
-  
+export function Layout() {
+  const { unreadCount, notifications, markAsRead, markAllAsRead, clearAll } =
+    useNotification();
+
+  const [notificationAnchorEl, setNotificationAnchorEl] =
+    React.useState<null | HTMLElement>(null);
+  const isNotificationOpen = Boolean(notificationAnchorEl);
+
+  const handleNotificationClick = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchorEl(null);
+  };
+
   const theme = useTheme();
   const navigate = useNavigate();
   const { token, logout } = useAuth();
@@ -118,20 +128,6 @@ export function Layout() {
       return null;
     }
   }, [token]);
-  //  React.useEffect(() => {
-  //   console.log("EventListener attached in Layout");
-  //   const handleNewNotification = (event:any) => {
-  //     console.log("Event received in Layout:", event.detail)
-  //     setNotificationCount((prev) => prev + 1);
-  //   };
-
-  //   window.addEventListener("fcm_message_received", handleNewNotification);
-  //   return () =>
-  //     window.removeEventListener(
-  //       "fcm_message_received",
-  //       handleNewNotification,
-  //     );
-  // }, []);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -220,16 +216,117 @@ export function Layout() {
             ) : (
               <>
                 <Tooltip title="Notifications">
-                  <IconButton
-                    color="inherit"
-                    sx={{ mr: 1 }}
-                    onClick={() => setNotificationCount(0)} // Reset count when clicked
-                  >
-                    <Badge badgeContent={notificationCount} color="error">
-                      <NotificationsIcon />
-                    </Badge>
-                  </IconButton>
-                </Tooltip>
+  <IconButton
+    color="inherit"
+    sx={{ mr: 1 }}
+    onClick={handleNotificationClick}
+  >
+    <Badge badgeContent={unreadCount} color="error">
+      <NotificationsIcon />
+    </Badge>
+  </IconButton>
+</Tooltip>
+<Menu
+  anchorEl={notificationAnchorEl}
+  open={isNotificationOpen}
+  onClose={handleNotificationClose}
+  PaperProps={{
+    style: {
+      maxHeight: 400,
+      width: "350px",
+    },
+  }}
+  transformOrigin={{ horizontal: "right", vertical: "top" }}
+  anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+>
+  <Box
+    sx={{
+      p: 2,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+    }}
+  >
+    <Typography variant="h6">Notifications</Typography>
+    {notifications.length > 0 && (
+      <Box>
+        <Typography
+          variant="caption"
+          sx={{
+            cursor: "pointer",
+            color: "primary.main",
+            mr: 1,
+            "&:hover": { textDecoration: "underline" },
+          }}
+          onClick={markAllAsRead}
+        >
+          Mark all read
+        </Typography>
+        <Typography
+           variant="caption"
+           sx={{
+             cursor: "pointer",
+             color: "error.main",
+             "&:hover": { textDecoration: "underline" },
+           }}
+           onClick={clearAll}
+        >
+           Clear all
+        </Typography>
+      </Box>
+    )}
+  </Box>
+  <Divider />
+  {notifications.length === 0 ? (
+    <MenuItem disabled>
+      <Typography variant="body2" color="textSecondary">
+        No new notifications
+      </Typography>
+    </MenuItem>
+  ) : (
+    notifications.map((notification) => (
+      <MenuItem
+        key={notification.id}
+        onClick={() => {
+            markAsRead(notification.id);
+            // Optional: navigate if data contains url
+            // if(notification.data?.url) navigate(notification.data.url)
+        }}
+        sx={{
+          backgroundColor: notification.read
+            ? "inherit"
+            : "action.hover",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          borderBottom: "1px solid #eee",
+          whiteSpace: "normal",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: notification.read ? 400 : 700 }}
+          >
+            {notification.title}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            {new Date(notification.timestamp).toLocaleTimeString()}
+          </Typography>
+        </Box>
+        <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+          {notification.body}
+        </Typography>
+      </MenuItem>
+    ))
+  )}
+</Menu>
                 {/* --- Profile Icon and Menu --- */}
                 <Tooltip title="Account settings">
                   <IconButton

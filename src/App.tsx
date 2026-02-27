@@ -12,6 +12,12 @@ import UserTable from "./pages/userTable";
 import { AuthProvider } from "./utils/authContext";
 import { ToastProvider } from "./utils/handleToast";
 import { ProtectedRoute } from "./utils/routeProtector";
+import { NotificationProvider } from "./utils/notificationContext"; 
+import { SocketProvider } from "./utils/socketContext";
+import { ChatLayout } from "./pages/chat/ChatLayout"; 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { ApolloProvider } from "@apollo/client/react";
+import { apolloClient } from "./utils/apolloClient";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +56,7 @@ const router = createBrowserRouter([
             element: <UserDetail />,
           },
           { path: "user/edit/:id", element: <UserEdit /> },
+          { path: "chat", element: <ChatLayout /> },
         ],
       },
     ],
@@ -67,17 +74,23 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  // useFcmSync();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ToastProvider>
-          <RouterProvider router={router} />
-        </ToastProvider>
+        <NotificationProvider>
+          <ToastProvider>
+            <SocketProvider>
+               <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+                 <ApolloProvider client={apolloClient}>
+                   <RouterProvider router={router} />
+                 </ApolloProvider>
+               </GoogleOAuthProvider>
+            </SocketProvider>
+          </ToastProvider>
+        </NotificationProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
-  // return <RouterProvider router={router} />;
 }
 
 export default App;

@@ -10,3 +10,15 @@ mutation Login($login: LoginUserInput!) {
     
   }
 }
+
+mutation LoginWithGoogle($loginWithGoogle: LoginWithGoogleInput!) {
+  loginWithGoogle(loginWithGoogle: $loginWithGoogle) {
+    message
+    payload {
+      accessToken
+      accessTokenExpiresIn
+      refreshToken
+      refreshTokenExpiresIn
+    }
+  }
+}

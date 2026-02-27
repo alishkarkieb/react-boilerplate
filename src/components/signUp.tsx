@@ -5,7 +5,8 @@ import {
   Container,
   Link,
   Paper,
-  Typography
+  Typography,
+  Divider
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useMutation } from "@tanstack/react-query";
@@ -21,11 +22,42 @@ import { graphqlRequest } from "../utils/axios";
 import { useToast } from "../utils/handleToast";
 import schema from "../validators/formValidation";
 import { FormField } from "./formField";
+import { useState } from "react";
+import { useAuth } from "../utils/authContext";
+import { useGoogleLogin } from "@react-oauth/google";
+import { SocialLoginButton } from "./socialLoginButton";
 
 export function SignUp() {
   type SignUpFormData = yup.InferType<typeof schema>;
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { login } = useAuth();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleSignUp = useGoogleLogin({
+    onSuccess: (codeResponse) => {
+      // NOTE: Send codeResponse.access_token to backend.
+      login(codeResponse.access_token);
+      showToast("Account created successfully!", "success");
+      setTimeout(() => {
+        navigate("/", {
+          state: { message: "Account created successfully" },
+        });
+      }, 1000);
+      setIsGoogleLoading(false);
+    },
+    onError: (error) => {
+      console.error("Google Sign Up Error:", error);
+      showToast("Google sign up failed", "error");
+      setIsGoogleLoading(false);
+    },
+    onNonOAuthError: () => setIsGoogleLoading(false)
+  });
+
+  const onGoogleBtnClick = () => {
+    setIsGoogleLoading(true);
+    handleGoogleSignUp();
+  };
 
   const {
     register,
@@ -164,14 +196,29 @@ export function SignUp() {
 
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isGoogleLoading}
               fullWidth
               variant="contained"
               size="large"
-              sx={{ mt: 3, py: 1.5, fontWeight: "bold" }}
+              sx={{ mt: 3, mb: 2, py: 1.5, fontWeight: "bold" }}
             >
               {isPending ? "Creating Account..." : "Create Account"}
             </Button>
+
+            <Box sx={{ width: '100%', my: 2 }}>
+              <Divider>
+                <Typography variant="body2" sx={{ color: 'text.secondary', px: 1 }}>
+                  or sign in with
+                </Typography>
+              </Divider>
+            </Box>
+
+            <SocialLoginButton
+              provider="google"
+              onClick={onGoogleBtnClick}
+              isLoading={isGoogleLoading}
+              disabled={isPending}
+            />
 
             <Box sx={{ textAlign: "center", mt: 2 }}>
               <Typography variant="body2">
